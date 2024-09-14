@@ -1,0 +1,5 @@
+var x: int = 10;
+
+fn main() {
+    var y: int = x + 20;
+}
