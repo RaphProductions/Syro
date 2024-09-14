@@ -76,6 +76,15 @@ public:
     void print(int indent = 0) const override;
 };
 
+class CastExpression : public Expression
+{
+public:
+    std::string targetType;
+    std::shared_ptr<Expression> expr;
+
+    void print(int indent = 0) const override;
+};
+
 void printIndent(int indent);
 
 #endif

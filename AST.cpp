@@ -72,3 +72,10 @@ void BinaryExpression::print(int indent) const
     std::cout << "Right:" << std::endl;
     right->print(indent + 2);
 }
+
+void CastExpression::print(int indent) const
+{
+    printIndent(indent);
+    std::cout << "CastExpression to " << targetType << std::endl;
+    expr->print(indent + 1);
+}

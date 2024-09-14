@@ -3,6 +3,7 @@
 #include "SyroParser.h"
 #include "SyroASTVisitor.h"
 #include "CodeGenerator.h"
+#include "SyroErrorListener.h"
 #include <iostream>
 #include <fstream>
 
@@ -17,7 +18,7 @@ int main(int argc, const char *argv[])
     std::ifstream stream(argv[1]);
     if (!stream)
     {
-        std::cerr << "Impossible d'ouvrir le fichier : " << argv[1] << std::endl;
+        std::cerr << "Unable to open file: " << argv[1] << std::endl;
         return 1;
     }
 
@@ -26,14 +27,24 @@ int main(int argc, const char *argv[])
     antlr4::CommonTokenStream tokens(&lexer);
     SyroParser parser(&tokens);
 
+    SyroErrorListener errorListener;
+    parser.removeErrorListeners();
+    parser.addErrorListener(&errorListener);
+
     antlr4::tree::ParseTree *tree = parser.program();
+
+    if (errorListener.hasErrors)
+    {
+        std::cerr << "Compilation failed due to syntax errors." << std::endl;
+        return 1;
+    }
 
     SyroASTVisitor visitor;
     visitor.visit(tree);
 
     if (!visitor.ast)
     {
-        std::cerr << "Erreur lors de la construction de l'AST" << std::endl;
+        std::cerr << "Error while constructing the AST" << std::endl;
         return 1;
     }
 
@@ -43,12 +54,12 @@ int main(int argc, const char *argv[])
     std::ofstream outFile(argv[2]);
     if (!outFile)
     {
-        std::cerr << "Impossible d'ouvrir le fichier de sortie : " << argv[2] << std::endl;
+        std::cerr << "Unable to open output file: " << argv[2] << std::endl;
         return 1;
     }
     outFile << code;
 
-    std::cout << "Code C généré avec succès dans " << argv[2] << std::endl;
+    std::cout << "C code successfully generated in " << argv[2] << std::endl;
 
     return 0;
 }

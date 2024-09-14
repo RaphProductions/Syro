@@ -131,6 +131,20 @@ void CodeGenerator::generateExpression(const Expression &expr)
         generateExpression(*binaryExpr->right);
         output << ")";
     }
+    else if (auto castExpr = dynamic_cast<const CastExpression *>(&expr))
+    {
+        std::string castType;
+        try
+        {
+            castType = mapType(castExpr->targetType);
+        }
+        catch (const std::exception &e)
+        {
+            throw std::runtime_error("Error during cast: " + std::string(e.what()));
+        }
+        output << "(" << castType << ") ";
+        generateExpression(*castExpr->expr);
+    }
 }
 
 void CodeGenerator::indent(int level)

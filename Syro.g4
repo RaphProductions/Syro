@@ -8,7 +8,7 @@ statement:
 	| expressionStatement;
 
 variableDeclaration:
-	'var' Identifier ':' type '=' expression ';';
+	'var' Identifier (':' type)? '=' expression ';';
 
 functionDeclaration:
 	'fn' Identifier parameterList (':' type)? block;
@@ -24,6 +24,7 @@ expressionStatement: expression ';';
 expression:
 	expression op = ('*' | '/' | '+' | '-') expression
 	| '(' expression ')'
+	| '@cast' '<' type '>' '(' expression ')'
 	| IntegerLiteral
 	| StringLiteral
 	| Identifier;
