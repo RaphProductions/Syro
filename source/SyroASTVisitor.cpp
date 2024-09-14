@@ -5,10 +5,9 @@ antlrcpp::Any SyroASTVisitor::visitProgram(SyroParser::ProgramContext *ctx)
     ast = std::make_shared<Program>();
     for (auto stmtCtx : ctx->statement())
     {
-        auto stmt = visit(stmtCtx).as<std::shared_ptr<Statement>>();
-        if (stmt)
+        if (auto stmt = visit(stmtCtx).as<std::shared_ptr<Statement>>())
         {
-            ast->statements.push_back(stmt);
+            ast->statements.push_back(std::move(stmt));
         }
     }
     return nullptr;
@@ -16,31 +15,23 @@ antlrcpp::Any SyroASTVisitor::visitProgram(SyroParser::ProgramContext *ctx)
 
 antlrcpp::Any SyroASTVisitor::visitStatement(SyroParser::StatementContext *ctx)
 {
-    if (ctx->variableDeclaration())
-    {
-        return visit(ctx->variableDeclaration());
-    }
-    else if (ctx->functionDeclaration())
-    {
-        return visit(ctx->functionDeclaration());
-    }
-    else if (ctx->returnStatement())
-    {
-        return visit(ctx->returnStatement());
-    }
-    else
-    {
-        return nullptr;
-    }
+    if (auto varDecl = ctx->variableDeclaration())
+        return visit(varDecl);
+    else if (auto funcDecl = ctx->functionDeclaration())
+        return visit(funcDecl);
+    else if (auto retStmt = ctx->returnStatement())
+        return visit(retStmt);
+
+    return nullptr;
 }
 
 antlrcpp::Any SyroASTVisitor::visitReturnStatement(SyroParser::ReturnStatementContext *ctx)
 {
     auto returnStmt = std::make_shared<ReturnStatement>();
 
-    if (ctx->expression())
+    if (auto exprCtx = ctx->expression())
     {
-        returnStmt->expression = visit(ctx->expression()).as<std::shared_ptr<Expression>>();
+        returnStmt->expression = visit(exprCtx).as<std::shared_ptr<Expression>>();
     }
 
     return std::static_pointer_cast<Statement>(returnStmt);
@@ -51,9 +42,10 @@ antlrcpp::Any SyroASTVisitor::visitVariableDeclaration(SyroParser::VariableDecla
     auto varDecl = std::make_shared<VariableDeclaration>();
     varDecl->name = ctx->Identifier()->getText();
     varDecl->typeName = ctx->type() ? ctx->type()->getText() : "i32";
-    if (ctx->expression())
+
+    if (auto exprCtx = ctx->expression())
     {
-        varDecl->initializer = visit(ctx->expression()).as<std::shared_ptr<Expression>>();
+        varDecl->initializer = visit(exprCtx).as<std::shared_ptr<Expression>>();
     }
 
     return std::static_pointer_cast<Statement>(varDecl);
@@ -63,33 +55,19 @@ antlrcpp::Any SyroASTVisitor::visitFunctionDeclaration(SyroParser::FunctionDecla
 {
     auto funcDecl = std::make_shared<FunctionDeclaration>();
     funcDecl->name = ctx->Identifier()->getText();
+    funcDecl->returnTypeName = ctx->type() ? ctx->type()->getText() : "void";
 
-    if (ctx->type())
+    for (auto paramCtx : ctx->parameterList()->parameter())
     {
-        funcDecl->returnTypeName = ctx->type()->getText();
-    }
-    else
-    {
-        funcDecl->returnTypeName = "void";
-    }
-
-    auto paramListCtx = ctx->parameterList();
-    if (!paramListCtx->parameter().empty())
-    {
-        for (auto paramCtx : paramListCtx->parameter())
-        {
-            std::string paramName = paramCtx->Identifier()->getText();
-            std::string paramTypeName = paramCtx->type()->getText();
-            funcDecl->parameters.push_back({paramName, paramTypeName});
-        }
+        funcDecl->parameters.push_back({paramCtx->Identifier()->getText(),
+                                        paramCtx->type()->getText()});
     }
 
     for (auto stmtCtx : ctx->block()->statement())
     {
-        auto stmt = visit(stmtCtx).as<std::shared_ptr<Statement>>();
-        if (stmt)
+        if (auto stmt = visit(stmtCtx).as<std::shared_ptr<Statement>>())
         {
-            funcDecl->body.push_back(stmt);
+            funcDecl->body.push_back(std::move(stmt));
         }
     }
 
@@ -120,9 +98,9 @@ antlrcpp::Any SyroASTVisitor::visitExpression(SyroParser::ExpressionContext *ctx
 
         for (auto argCtx : ctx->argumentList()->expression())
         {
-            auto arg = visit(argCtx).as<std::shared_ptr<Expression>>();
-            funcCallExpr->arguments.push_back(arg);
+            funcCallExpr->arguments.push_back(visit(argCtx).as<std::shared_ptr<Expression>>());
         }
+
         return std::static_pointer_cast<Expression>(funcCallExpr);
     }
     else if (ctx->IntegerLiteral())
@@ -141,6 +119,6 @@ antlrcpp::Any SyroASTVisitor::visitExpression(SyroParser::ExpressionContext *ctx
     {
         return visit(ctx->expression(0));
     }
-    
+
     return nullptr;
 }

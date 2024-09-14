@@ -20,15 +20,8 @@ std::string CodeGenerator::mapType(const std::string &syroType)
         {"void", "void"},
     };
 
-    auto it = typeMap.find(syroType);
-    if (it != typeMap.end())
-    {
-        return it->second;
-    }
-    else
-    {
-        throw std::runtime_error("Error: Unknown type '" + syroType + "'");
-    }
+    // Utilisation directe de at() qui lève std::out_of_range si la clé n'existe pas
+    return typeMap.at(syroType);
 }
 
 std::string CodeGenerator::generate(const Program &program)
@@ -76,49 +69,31 @@ void CodeGenerator::generateReturnStatement(const ReturnStatement &returnStmt)
 void CodeGenerator::generateVariableDeclaration(const VariableDeclaration &varDecl)
 {
     indent(currentIndent);
-    std::string cType = mapType(varDecl.typeName);
-    output << cType << " " << varDecl.name;
+    output << mapType(varDecl.typeName) << " " << varDecl.name;
     if (varDecl.initializer)
     {
         output << " = ";
         generateExpression(*varDecl.initializer);
     }
-
     output << ";\n";
 }
 
 void CodeGenerator::generateFunctionDeclaration(const FunctionDeclaration &funcDecl)
 {
     indent(currentIndent);
-    std::string returnType;
-    try
-    {
-        returnType = mapType(funcDecl.returnTypeName);
-    }
-    catch (const std::exception &e)
-    {
-        throw std::runtime_error("Error in function '" + funcDecl.name + "': " + e.what());
-    }
-    output << returnType << " " << funcDecl.name << "(";
+    output << mapType(funcDecl.returnTypeName) << " " << funcDecl.name << "(";
 
-    for (size_t i = 0; i < funcDecl.parameters.size(); ++i)
+    const size_t paramCount = funcDecl.parameters.size();
+    for (size_t i = 0; i < paramCount; ++i)
     {
         const auto &param = funcDecl.parameters[i];
-        std::string paramType;
-        try
-        {
-            paramType = mapType(param.second);
-        }
-        catch (const std::exception &e)
-        {
-            throw std::runtime_error("Error in function parameters '" + funcDecl.name + "': " + e.what());
-        }
-        output << paramType << " " << param.first;
-        if (i < funcDecl.parameters.size() - 1)
+        output << mapType(param.second) << " " << param.first;
+        if (i < paramCount - 1)
         {
             output << ", ";
         }
     }
+
     output << ") {\n";
     currentIndent++;
     for (const auto &stmt : funcDecl.body)
@@ -150,25 +125,17 @@ void CodeGenerator::generateExpression(const Expression &expr)
     }
     else if (auto castExpr = dynamic_cast<const CastExpression *>(&expr))
     {
-        std::string castType;
-        try
-        {
-            castType = mapType(castExpr->targetType);
-        }
-        catch (const std::exception &e)
-        {
-            throw std::runtime_error("Error during cast: " + std::string(e.what()));
-        }
-        output << "(" << castType << ") ";
+        output << "(" << mapType(castExpr->targetType) << ") ";
         generateExpression(*castExpr->expr);
     }
     else if (auto funcCallExpr = dynamic_cast<const FunctionCallExpression *>(&expr))
     {
         output << funcCallExpr->functionName << "(";
-        for (size_t i = 0; i < funcCallExpr->arguments.size(); ++i)
+        const size_t argCount = funcCallExpr->arguments.size();
+        for (size_t i = 0; i < argCount; ++i)
         {
             generateExpression(*funcCallExpr->arguments[i]);
-            if (i < funcCallExpr->arguments.size() - 1)
+            if (i < argCount - 1)
             {
                 output << ", ";
             }
@@ -179,8 +146,5 @@ void CodeGenerator::generateExpression(const Expression &expr)
 
 void CodeGenerator::indent(int level)
 {
-    for (int i = 0; i < level; ++i)
-    {
-        output << "    ";
-    }
+    output << std::string(level * 4, ' ');
 }
