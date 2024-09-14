@@ -24,10 +24,26 @@ antlrcpp::Any SyroASTVisitor::visitStatement(SyroParser::StatementContext *ctx)
     {
         return visit(ctx->functionDeclaration());
     }
+    else if (ctx->returnStatement())
+    {
+        return visit(ctx->returnStatement());
+    }
     else
     {
         return nullptr;
     }
+}
+
+antlrcpp::Any SyroASTVisitor::visitReturnStatement(SyroParser::ReturnStatementContext *ctx)
+{
+    auto returnStmt = std::make_shared<ReturnStatement>();
+
+    if (ctx->expression())
+    {
+        returnStmt->expression = visit(ctx->expression()).as<std::shared_ptr<Expression>>();
+    }
+
+    return std::static_pointer_cast<Statement>(returnStmt);
 }
 
 antlrcpp::Any SyroASTVisitor::visitVariableDeclaration(SyroParser::VariableDeclarationContext *ctx)
@@ -39,6 +55,7 @@ antlrcpp::Any SyroASTVisitor::visitVariableDeclaration(SyroParser::VariableDecla
     {
         varDecl->initializer = visit(ctx->expression()).as<std::shared_ptr<Expression>>();
     }
+
     return std::static_pointer_cast<Statement>(varDecl);
 }
 
@@ -75,6 +92,7 @@ antlrcpp::Any SyroASTVisitor::visitFunctionDeclaration(SyroParser::FunctionDecla
             funcDecl->body.push_back(stmt);
         }
     }
+
     return std::static_pointer_cast<Statement>(funcDecl);
 }
 
@@ -95,6 +113,18 @@ antlrcpp::Any SyroASTVisitor::visitExpression(SyroParser::ExpressionContext *ctx
         castExpr->expr = visit(ctx->expression(0)).as<std::shared_ptr<Expression>>();
         return std::static_pointer_cast<Expression>(castExpr);
     }
+    else if (ctx->Identifier() && ctx->argumentList())
+    {
+        auto funcCallExpr = std::make_shared<FunctionCallExpression>();
+        funcCallExpr->functionName = ctx->Identifier()->getText();
+
+        for (auto argCtx : ctx->argumentList()->expression())
+        {
+            auto arg = visit(argCtx).as<std::shared_ptr<Expression>>();
+            funcCallExpr->arguments.push_back(arg);
+        }
+        return std::static_pointer_cast<Expression>(funcCallExpr);
+    }
     else if (ctx->IntegerLiteral())
     {
         auto literal = std::make_shared<LiteralExpression>();
@@ -111,5 +141,6 @@ antlrcpp::Any SyroASTVisitor::visitExpression(SyroParser::ExpressionContext *ctx
     {
         return visit(ctx->expression(0));
     }
+    
     return nullptr;
 }

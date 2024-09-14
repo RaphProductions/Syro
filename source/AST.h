@@ -70,4 +70,17 @@ public:
     std::shared_ptr<Expression> expr;
 };
 
+class FunctionCallExpression : public Expression
+{
+public:
+    std::string functionName;
+    std::vector<std::shared_ptr<Expression>> arguments;
+};
+
+class ReturnStatement : public Statement
+{
+public:
+    std::shared_ptr<Expression> expression;
+};
+
 #endif

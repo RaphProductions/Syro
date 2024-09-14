@@ -5,7 +5,10 @@ program: statement* EOF;
 statement:
 	variableDeclaration
 	| functionDeclaration
-	| expressionStatement;
+	| expressionStatement
+	| returnStatement;
+
+returnStatement: 'return' expression? ';';
 
 variableDeclaration:
 	'var' Identifier (':' type)? '=' expression ';';
@@ -25,9 +28,12 @@ expression:
 	expression op = ('*' | '/' | '+' | '-') expression
 	| '(' expression ')'
 	| '@cast' '<' type '>' '(' expression ')'
+	| Identifier '(' argumentList? ')'
 	| IntegerLiteral
 	| StringLiteral
 	| Identifier;
+
+argumentList: expression (',' expression)*;
 
 type: IntegerType | Identifier;
 

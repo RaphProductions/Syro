@@ -14,9 +14,11 @@ private:
 
     void generateProgram(const Program &program);
     void generateStatement(const Statement &stmt);
+    void generateReturnStatement(const ReturnStatement &returnStmt);
     void generateVariableDeclaration(const VariableDeclaration &varDecl);
     void generateFunctionDeclaration(const FunctionDeclaration &funcDecl);
     void generateExpression(const Expression &expr);
+    
     std::string mapType(const std::string &syroType);
 
     void indent(int level);

@@ -55,6 +55,22 @@ void CodeGenerator::generateStatement(const Statement &stmt)
     {
         generateFunctionDeclaration(*funcDecl);
     }
+    else if (auto returnStmt = dynamic_cast<const ReturnStatement *>(&stmt))
+    {
+        generateReturnStatement(*returnStmt);
+    }
+}
+
+void CodeGenerator::generateReturnStatement(const ReturnStatement &returnStmt)
+{
+    indent(currentIndent);
+    output << "return";
+    if (returnStmt.expression)
+    {
+        output << " ";
+        generateExpression(*returnStmt.expression);
+    }
+    output << ";\n";
 }
 
 void CodeGenerator::generateVariableDeclaration(const VariableDeclaration &varDecl)
@@ -145,6 +161,19 @@ void CodeGenerator::generateExpression(const Expression &expr)
         }
         output << "(" << castType << ") ";
         generateExpression(*castExpr->expr);
+    }
+    else if (auto funcCallExpr = dynamic_cast<const FunctionCallExpression *>(&expr))
+    {
+        output << funcCallExpr->functionName << "(";
+        for (size_t i = 0; i < funcCallExpr->arguments.size(); ++i)
+        {
+            generateExpression(*funcCallExpr->arguments[i]);
+            if (i < funcCallExpr->arguments.size() - 1)
+            {
+                output << ", ";
+            }
+        }
+        output << ")";
     }
 }
 
