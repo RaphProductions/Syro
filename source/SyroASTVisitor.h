@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SyroBaseVisitor.h"
+#include "../generated/SyroBaseVisitor.h"
 #include "AST.h"
 #include <memory>
 

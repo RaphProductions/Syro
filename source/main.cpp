@@ -1,6 +1,6 @@
 #include "antlr4-runtime.h"
-#include "SyroLexer.h"
-#include "SyroParser.h"
+#include "../generated/SyroLexer.h"
+#include "../generated/SyroParser.h"
 #include "SyroASTVisitor.h"
 #include "CodeGenerator.h"
 #include "SyroErrorListener.h"

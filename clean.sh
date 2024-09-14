@@ -1,1 +1,0 @@
-rm -rf syro Syro.interp Syro.tokens SyroBaseListener.cpp SyroBaseListener.h SyroLexer.cpp SyroLexer.h SyroVisitor.cpp SyroVisitor.h SyroBaseVisitor.cpp SyroBaseVisitor.h SyroLexer.interp SyroLexer.tokens SyroListener.cpp SyroListener.h SyroParser.cpp SyroParser.h

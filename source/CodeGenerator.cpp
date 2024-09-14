@@ -67,6 +67,7 @@ void CodeGenerator::generateVariableDeclaration(const VariableDeclaration &varDe
         output << " = ";
         generateExpression(*varDecl.initializer);
     }
+
     output << ";\n";
 }
 
