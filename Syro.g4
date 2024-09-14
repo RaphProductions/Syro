@@ -2,14 +2,16 @@ grammar Syro;
 
 program: statement* EOF;
 
-statement: variableDeclaration
-         | functionDeclaration
-         | expressionStatement
-         ;
+statement:
+	variableDeclaration
+	| functionDeclaration
+	| expressionStatement;
 
-variableDeclaration: 'var' Identifier (':' type)? '=' expression ';';
+variableDeclaration:
+	'var' Identifier ':' type '=' expression ';';
 
-functionDeclaration: 'fn' Identifier parameterList ('->' type)? block;
+functionDeclaration:
+	'fn' Identifier parameterList (':' type)? block;
 
 parameterList: '(' (parameter (',' parameter)*)? ')';
 
@@ -19,15 +21,26 @@ block: '{' statement* '}';
 
 expressionStatement: expression ';';
 
-expression
-    : expression op=('+' | '-' | '*' | '/') expression
-    | '(' expression ')'
-    | IntegerLiteral
-    | StringLiteral
-    | Identifier
-    ;
+expression:
+	expression op = ('*' | '/' | '+' | '-') expression
+	| '(' expression ')'
+	| IntegerLiteral
+	| StringLiteral
+	| Identifier;
 
-type: Identifier;
+type: IntegerType | Identifier;
+
+IntegerType:
+	'i8'
+	| 'i16'
+	| 'i32'
+	| 'i64'
+	| 'isize'
+	| 'u8'
+	| 'u16'
+	| 'u32'
+	| 'u64'
+	| 'usize';
 
 Identifier: [a-zA-Z_][a-zA-Z0-9_]*;
 

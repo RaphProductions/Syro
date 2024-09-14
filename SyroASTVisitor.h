@@ -4,7 +4,8 @@
 #include "AST.h"
 #include <memory>
 
-class SyroASTVisitor : public SyroBaseVisitor {
+class SyroASTVisitor : public SyroBaseVisitor
+{
 public:
     std::shared_ptr<Program> ast;
 
