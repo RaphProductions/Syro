@@ -48,6 +48,9 @@ int main(int argc, const char *argv[])
         return 1;
     }
 
+    std::cout << "Constructed AST:\n";
+    std::cout << *visitor.ast << std::endl;
+
     CodeGenerator codeGen;
     std::string code = codeGen.generate(*visitor.ast);
 
