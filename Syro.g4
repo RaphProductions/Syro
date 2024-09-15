@@ -6,12 +6,13 @@ statement:
 	variableDeclaration
 	| functionDeclaration
 	| expressionStatement
-	| returnStatement;
+	| returnStatement
+	| assignmentStatement;
 
 returnStatement: 'return' expression? ';';
 
 variableDeclaration:
-	'var' Identifier (':' type)? '=' expression ';';
+	'var' Identifier (':' type)? ('=' expression)? ';';
 
 functionDeclaration:
 	'fn' Identifier parameterList (':' type)? block;
@@ -23,6 +24,22 @@ parameter: Identifier ':' type;
 block: '{' statement* '}';
 
 expressionStatement: expression ';';
+
+assignmentStatement:
+	Identifier assignmentOperator expression ';';
+
+assignmentOperator:
+	'='
+	| '+='
+	| '-='
+	| '*='
+	| '/='
+	| '%='
+	| '&='
+	| '|='
+	| '^='
+	| '<<='
+	| '>>=';
 
 expression:
 	expression op = ('*' | '/' | '+' | '-') expression

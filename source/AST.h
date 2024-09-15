@@ -105,4 +105,14 @@ public:
     void print(std::ostream &os, int indent = 0) const override;
 };
 
+class AssignmentStatement : public Statement
+{
+public:
+    std::string variableName;
+    std::string operatorSymbol;
+    std::shared_ptr<Expression> expression;
+
+    void print(std::ostream &os, int indent = 0) const override;
+};
+
 std::ostream &operator<<(std::ostream &os, const ASTNode &node);

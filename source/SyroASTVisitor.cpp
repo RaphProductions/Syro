@@ -21,6 +21,8 @@ antlrcpp::Any SyroASTVisitor::visitStatement(SyroParser::StatementContext *ctx)
         return visit(funcDecl);
     else if (auto retStmt = ctx->returnStatement())
         return visit(retStmt);
+    else if (auto assignStmt = ctx->assignmentStatement())
+        return visit(assignStmt);
 
     return nullptr;
 }
@@ -59,8 +61,9 @@ antlrcpp::Any SyroASTVisitor::visitFunctionDeclaration(SyroParser::FunctionDecla
 
     for (auto paramCtx : ctx->parameterList()->parameter())
     {
-        funcDecl->parameters.push_back({paramCtx->Identifier()->getText(),
-                                        paramCtx->type()->getText()});
+        funcDecl->parameters.emplace_back(
+            std::make_pair(paramCtx->Identifier()->getText(),
+                           paramCtx->type()->getText()));
     }
 
     for (auto stmtCtx : ctx->block()->statement())
@@ -72,6 +75,16 @@ antlrcpp::Any SyroASTVisitor::visitFunctionDeclaration(SyroParser::FunctionDecla
     }
 
     return std::static_pointer_cast<Statement>(funcDecl);
+}
+
+antlrcpp::Any SyroASTVisitor::visitAssignmentStatement(SyroParser::AssignmentStatementContext *ctx)
+{
+    auto assignStmt = std::make_shared<AssignmentStatement>();
+    assignStmt->variableName = ctx->Identifier()->getText();
+    assignStmt->operatorSymbol = ctx->assignmentOperator()->getText();
+    assignStmt->expression = visit(ctx->expression()).as<std::shared_ptr<Expression>>();
+
+    return std::static_pointer_cast<Statement>(assignStmt);
 }
 
 antlrcpp::Any SyroASTVisitor::visitExpression(SyroParser::ExpressionContext *ctx)
@@ -107,6 +120,12 @@ antlrcpp::Any SyroASTVisitor::visitExpression(SyroParser::ExpressionContext *ctx
     {
         auto literal = std::make_shared<LiteralExpression>();
         literal->value = ctx->IntegerLiteral()->getText();
+        return std::static_pointer_cast<Expression>(literal);
+    }
+    else if (ctx->StringLiteral())
+    {
+        auto literal = std::make_shared<LiteralExpression>();
+        literal->value = ctx->StringLiteral()->getText();
         return std::static_pointer_cast<Expression>(literal);
     }
     else if (ctx->Identifier())

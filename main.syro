@@ -1,23 +1,30 @@
-var global_var: i32 = 10;
-
-fn add(a: i32, b: i32): i32 {
-    var result: i32 = a + b;
-    return result;
-}
-
-fn multiply_and_cast(a: i32, b: i32): i64 {
-    var product: i32 = a * b;
-    
-    var casted_product: i64 = @cast<i64>(product);
-    return casted_product;
-}
+var globalCounter: i32 = 0;
 
 fn main(): i32 {
-    var x: i32 = 5;
-    var y: i32 = 3;
+    var x: i32 = 10;
+    var y: i32 = 20;
+    var z: i32;
 
-    var sum: i32 = add(x, y);
-    var product: i64 = multiply_and_cast(x, y);
+    x += 5;
+    y *= 2;
+    z = x + y;
 
+    var result: i32 = computeSum(x, y, z);
+    globalCounter += result;
+
+    return globalCounter;
+}
+
+fn computeSum(a: i32, b: i32, c: i32): i32 {
+    var sum: i32;
+    sum = a + b + c;
+    
     return sum;
+}
+
+fn castExample(value: i32): u32 {
+    var castedValue: u32;
+    castedValue = @cast<u32>(value);
+
+    return castedValue;
 }

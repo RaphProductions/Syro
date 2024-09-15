@@ -20,7 +20,6 @@ std::string CodeGenerator::mapType(const std::string &syroType)
         {"void", "void"},
     };
 
-    // Utilisation directe de at() qui lève std::out_of_range si la clé n'existe pas
     return typeMap.at(syroType);
 }
 
@@ -51,6 +50,10 @@ void CodeGenerator::generateStatement(const Statement &stmt)
     else if (auto returnStmt = dynamic_cast<const ReturnStatement *>(&stmt))
     {
         generateReturnStatement(*returnStmt);
+    }
+    else if (auto assignStmt = dynamic_cast<const AssignmentStatement *>(&stmt))
+    {
+        generateAssignmentStatement(*assignStmt);
     }
 }
 
@@ -103,6 +106,14 @@ void CodeGenerator::generateFunctionDeclaration(const FunctionDeclaration &funcD
     currentIndent--;
     indent(currentIndent);
     output << "}\n";
+}
+
+void CodeGenerator::generateAssignmentStatement(const AssignmentStatement &assignStmt)
+{
+    indent(currentIndent);
+    output << assignStmt.variableName << " " << assignStmt.operatorSymbol << " ";
+    generateExpression(*assignStmt.expression);
+    output << ";\n";
 }
 
 void CodeGenerator::generateExpression(const Expression &expr)

@@ -96,6 +96,13 @@ void ReturnStatement::print(std::ostream &os, int indent) const
     }
 }
 
+void AssignmentStatement::print(std::ostream &os, int indent) const
+{
+    printIndent(os, indent);
+    os << "AssignmentStatement: " << variableName << " " << operatorSymbol << "\n";
+    expression->print(os, indent + 1);
+}
+
 std::ostream &operator<<(std::ostream &os, const ASTNode &node)
 {
     node.print(os);
