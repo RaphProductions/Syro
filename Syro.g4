@@ -17,6 +17,10 @@ variableDeclaration:
 functionDeclaration:
 	'fn' Identifier parameterList (':' type)? block;
 
+ifElse: 
+	'if (' expression ')' block
+	('else' block)?
+
 parameterList: '(' (parameter (',' parameter)*)? ')';
 
 parameter: Identifier ':' type;
