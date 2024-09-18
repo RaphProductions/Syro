@@ -115,4 +115,15 @@ public:
     void print(std::ostream &os, int indent = 0) const override;
 };
 
+class IfElseStatement : public Statement
+{
+public:
+    Expression ifExpression;
+    std::vector<std::shared_ptr<Statement>> ifBody;
+
+    std::vector<std::shared_ptr<Statement>> elseBody;
+
+    void print(std::ostream &os, int indent = 0) const override;
+};
+
 std::ostream &operator<<(std::ostream &os, const ASTNode &node);
